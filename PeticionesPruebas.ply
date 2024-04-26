@@ -1,0 +1,4 @@
+PeticionesPruebas:
+  url: https://angular12nestbackend-mcat--3000--41fbae16.local-credentialless.webcontainer.io/
+  method: GET
+  headers: {}
