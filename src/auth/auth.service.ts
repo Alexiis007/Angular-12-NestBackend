@@ -5,9 +5,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
 import * as bcryptjs from 'bcryptjs'
-import { LoginDto } from './dto/dto-login.dto';
+import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload';
+import { promises } from 'dns';
+import { LoginResponse } from './interfaces/login-response';
+import { RegisterDto } from './dto';
 @Injectable()
 export class AuthService {
 
@@ -36,7 +39,7 @@ export class AuthService {
 
   }
 
-  async login(loginDto : LoginDto){
+  async login(loginDto : LoginDto):Promise<LoginResponse>{
     const {email, password} = loginDto;
     const user = await this.userModel.findOne({email:email});
     if(!user){
@@ -54,8 +57,23 @@ export class AuthService {
     }
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async register( registerDto : RegisterDto):Promise<LoginResponse>
+  {
+    const user = await this.create(registerDto);
+    return{
+      user: user,
+      token:this.getJwtToken({id : user._id})
+    }
+  }
+
+  findAll():Promise<User[]> {
+    return this.userModel.find();
+  }
+
+  async findUSerById(id : string){
+    const user = await this.userModel.findById(id);
+    const {password, ...rest} = user.toJSON();
+    return rest;
   }
 
   findOne(id: number) {
